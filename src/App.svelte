@@ -140,7 +140,7 @@
     <span>by prawnydagrate</span>
     <div>
         <a
-            href="https://github.com/Python3-8"
+            href="https://github.com/prawnydagrate"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub"
