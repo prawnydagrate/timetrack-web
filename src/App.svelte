@@ -74,9 +74,22 @@
         });
         newTaskName = "";
     };
-    const taskNameKeyup = (e) => {
+    const newTaskKeyUp = (e) => {
         if (e.key === "Enter") {
             addTask();
+        }
+    };
+    let editing = $state(null);
+    let editingInput = $state(null);
+    $effect(() => editing && editingInput.focus());
+    const editTaskKeyUp = (e) => {
+        if (e.key === "Escape") {
+            editing = null;
+        } else if (e.key === "Enter") {
+            const { name, key } = editing;
+            editing = null;
+            const i = tasks.findIndex(({ start }) => start === key);
+            tasks[i].name = name;
         }
     };
 </script>
@@ -101,7 +114,29 @@
                 )}
                 {@const button = paused ? "resume" : "pause"}
                 <tr>
-                    <td>{task.name}</td>
+                    <td>
+                        {#if editing && editing.key === task.start}
+                            <input
+                                class="task-name-input"
+                                placeholder="new task name"
+                                onkeyup={editTaskKeyUp}
+                                onfocusout={() => (editing = null)}
+                                bind:value={editing.name}
+                                bind:this={editingInput}
+                            />
+                        {:else}
+                            <button
+                                class="task-name-button"
+                                onclick={() =>
+                                    (editing = {
+                                        name: task.name,
+                                        key: task.start,
+                                    })}
+                            >
+                                {task.name}
+                            </button>
+                        {/if}
+                    </td>
                     <td>{task.start.toLocaleString()}</td>
                     <td>{displayMs(durations[i])}</td>
                     <td>{paused ? "yes" : "no"}</td>
@@ -128,11 +163,11 @@
 {/if}
 <div style="margin-top: 16px;">
     <input
-        id="task-name-input"
+        class="task-name-input"
         type="text"
         placeholder="task name"
         bind:value={newTaskName}
-        onkeyup={taskNameKeyup}
+        onkeyup={newTaskKeyUp}
     />
     <button class="add" onclick={addTask} disabled={!newTaskName}>add</button>
 </div>
@@ -245,7 +280,7 @@
         border-color: lightgray;
     }
 
-    #task-name-input {
+    .task-name-input {
         min-height: 36px;
         min-width: 16%;
         color: whitesmoke;
@@ -255,13 +290,34 @@
         transition-duration: 200ms;
     }
 
-    #task-name-input::placeholder {
+    .task-name-input::placeholder {
         color: #888;
     }
 
-    #task-name-input:focus {
+    .task-name-input:focus {
         border: 1px solid lightgray;
         outline: none;
+    }
+
+    .task-name-button {
+        background-color: transparent;
+        color: whitesmoke;
+        border: none;
+        padding: 0px;
+        margin: 0px;
+        font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Oxygen,
+            Ubuntu,
+            Cantarell,
+            "Open Sans",
+            "Helvetica Neue",
+            sans-serif;
+        font-size: 12pt;
     }
 
     footer {
