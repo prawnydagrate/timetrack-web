@@ -1,17 +1,24 @@
 <script>
+    import Swal from "sweetalert2/src/sweetalert2.js";
+    import "@sweetalert2/theme-dark/dark.min.css";
     import ghLogo from "./assets/gh.svg";
     import igLogo from "./assets/ig.svg";
     import ccLogo from "./assets/cc.svg";
     import lcLogo from "./assets/lc.svg";
+    import openIcon from "./assets/open.svg";
 
     let newTaskName = $state("");
     const dateify = (s) => new Date(s);
     let tasks = $state(
         (JSON.parse(localStorage.getItem("tasks")) || []).map(
-            ({ name, start, pauses }) => ({
-                name,
+            ({ name, start, pauses, notes }) => ({
+                name: name || "\u2014",
                 start: dateify(start),
-                pauses: pauses.map((pause) => pause.map(dateify)),
+                pauses:
+                    pauses == null
+                        ? []
+                        : pauses.map((pause) => pause.map(dateify)),
+                notes: notes || "",
             }),
         ),
     );
@@ -71,6 +78,7 @@
             name: newTaskName,
             start: new Date(),
             pauses: [],
+            notes: "",
         });
         newTaskName = "";
     };
@@ -101,6 +109,7 @@
         <thead>
             <tr>
                 <th>name</th>
+                <th>notes</th>
                 <th>start</th>
                 <th>duration</th>
                 <th>paused</th>
@@ -136,6 +145,71 @@
                                 {task.name}
                             </button>
                         {/if}
+                    </td>
+                    <td>
+                        <button
+                            style="background-color: transparent; border: none; padding: 0px"
+                            aria-label="Open notes"
+                            onclick={() =>
+                                Swal.fire({
+                                    title: `notes for <em>${task.name}</em>`,
+                                    html: `
+<textarea id="task-notes-input" placeholder="enter notes for '${task.name}'"></textarea>
+<style>
+    #task-notes-input {
+        min-width: 80%;
+        min-height: 70px;
+        color: whitesmoke;
+        font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Oxygen,
+            Ubuntu,
+            Cantarell,
+            "Open Sans",
+            "Helvetica Neue",
+            sans-serif;
+        background-color: #444;
+        border: 1px solid #222;
+        border-radius: 8px;
+        transition-duration: 200ms;
+    }
+
+    #task-notes-input::placeholder {
+        color: #888;
+    }
+
+    #task-notes-input:focus {
+        border: 1px solid lightgray;
+        outline: none;
+    }
+</style>
+`,
+                                    focusConfirm: false,
+                                    didOpen: () =>
+                                        (document.getElementById(
+                                            "task-notes-input",
+                                        ).value = task.notes || ""),
+                                    preConfirm: () =>
+                                        (task.notes =
+                                            document.getElementById(
+                                                "task-notes-input",
+                                            ).value),
+                                    confirmButtonText: "confirm",
+                                    customClass: {
+                                        confirmButton: "task-notes-ok-button",
+                                    },
+                                })}
+                        >
+                            <img
+                                id="open-icon"
+                                src={openIcon}
+                                alt="Open icon"
+                            />
+                        </button>
                     </td>
                     <td>{task.start.toLocaleString()}</td>
                     <td>{displayMs(durations[i])}</td>
@@ -230,6 +304,36 @@
         padding: 4px;
     }
 
+    .task-name-button {
+        background-color: transparent;
+        color: whitesmoke;
+        border: none;
+        padding: 0px;
+        margin: 0px;
+        font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Oxygen,
+            Ubuntu,
+            Cantarell,
+            "Open Sans",
+            "Helvetica Neue",
+            sans-serif;
+        font-size: 12pt;
+    }
+
+    #open-icon {
+        width: 16px;
+        filter: none;
+    }
+
+    #open-icon:hover {
+        filter: brightness(60%);
+    }
+
     button {
         padding: 8px 16px;
         border-radius: 16px;
@@ -297,27 +401,6 @@
     .task-name-input:focus {
         border: 1px solid lightgray;
         outline: none;
-    }
-
-    .task-name-button {
-        background-color: transparent;
-        color: whitesmoke;
-        border: none;
-        padding: 0px;
-        margin: 0px;
-        font-family:
-            system-ui,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Oxygen,
-            Ubuntu,
-            Cantarell,
-            "Open Sans",
-            "Helvetica Neue",
-            sans-serif;
-        font-size: 12pt;
     }
 
     footer {
