@@ -50,7 +50,7 @@
         if (s != 0) {
             comps.push(`${s}s`);
         }
-        return comps.join(" ") || "—";
+        return comps.join(" ") || "\u2014";
     };
     const toggleTask = (i) => {
         const task = tasks[i];
@@ -213,7 +213,7 @@
 
     .button-cell button.pause-play:hover {
         color: whitesmoke;
-        background-color: #666;
+        background-color: #888;
     }
 
     .button-cell button.delete {
@@ -223,8 +223,9 @@
     }
 
     .button-cell button.delete:hover {
-        color: white;
+        color: whitesmoke;
         background-color: #ff6464;
+        border-color: whitesmoke;
     }
 
     button.add {
@@ -234,15 +235,14 @@
     }
 
     button.add:hover {
-        color: whitesmoke;
+        color: darkgreen;
         background-color: #00ff00;
-        border: 1px solid #00ff00;
     }
 
     button.add:disabled {
         color: #aaa;
         background-color: #eee;
-        border: 1px solid lightgray;
+        border-color: lightgray;
     }
 
     #task-name-input {
