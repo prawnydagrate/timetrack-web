@@ -1,13 +1,14 @@
 <script>
+    import { onMount } from "svelte";
     import Swal from "sweetalert2/src/sweetalert2.js";
     import "@sweetalert2/theme-dark/dark.min.css";
+    import { scrollToBottom } from "./utils";
     import playIcon from "../assets/play.svg";
     import pauseIcon from "../assets/pause.svg";
     import pausePlayIcon from "../assets/pause-play.svg";
     import openIcon from "../assets/open.svg";
     import trashIcon from "../assets/trash.svg";
 
-    let newTaskName = $state("");
     const dateify = (s) => new Date(s);
     let tasks = $state(
         (JSON.parse(localStorage.getItem("tasks")) || []).map(
@@ -42,7 +43,7 @@
         return durs;
     };
     let durations = $state(calcDurs());
-    setInterval(() => (durations = calcDurs()), 200);
+    setInterval(() => (durations = calcDurs()), 100);
     const displayMs = (dur) => {
         if (!dur) return "\u2014";
         const s = Math.floor((dur / 1000) % 60),
@@ -74,6 +75,8 @@
         }
         tasks[i].pauses.push([new Date()]);
     };
+    let newTaskInput = $state(null);
+    let newTaskName = $state("");
     const addTask = () => {
         const name = newTaskName.trim();
         if (!name) {
@@ -86,8 +89,7 @@
             notes: "",
         });
         newTaskName = "";
-        const scrollingElement = document.scrollingElement || document.body;
-        scrollingElement.scrollTop = scrollingElement.scrollHeight;
+        scrollToBottom(() => {});
     };
     const newTaskKeyUp = (e) => {
         if (e.key === "Enter") {
@@ -107,6 +109,8 @@
             tasks[i].name = name;
         }
     };
+
+    onMount(() => scrollToBottom(() => newTaskInput.focus()));
 </script>
 
 <h1 style="margin-bottom: 0">TimeTrack</h1>
@@ -157,7 +161,7 @@
                     <td>
                         {#if editing && editing.key === task.start}
                             <input
-                                class="task-name-input"
+                                class="general-input"
                                 placeholder="new task name"
                                 onkeyup={editTaskKeyUp}
                                 onfocusout={() => (editing = null)}
@@ -270,18 +274,26 @@
         </tbody>
     </table>
 {:else}
-    no tasks!
+    no tasks!<br /><br />add one below:
 {/if}
 <div style="margin: 1rem 0px 2rem 0px">
     <input
-        class="task-name-input"
+        class="general-input"
         type="text"
         placeholder="task name"
+        bind:this={newTaskInput}
         bind:value={newTaskName}
         onkeyup={newTaskKeyUp}
     />
-    <button class="add" onclick={addTask} disabled={!newTaskName}>add</button>
+    <button class="add" onclick={addTask} disabled={!newTaskName.trim()}
+        >add</button
+    >
 </div>
+
+<!-- {#if !tasks.length}
+    or import your tasks:&emsp;
+    <input class="general-input" type="text" placeholder="save string" />
+{/if} -->
 
 <style>
     #tasks-table {
@@ -305,6 +317,8 @@
     }
 
     .task-name-button {
+        height: 100%;
+        width: 100%;
         background-color: transparent;
         color: whitesmoke;
         border: none;
@@ -394,7 +408,7 @@
         border-color: lightgray;
     }
 
-    .task-name-input {
+    .general-input {
         min-height: 36px;
         min-width: 16%;
         color: whitesmoke;
@@ -404,11 +418,11 @@
         transition-duration: 200ms;
     }
 
-    .task-name-input::placeholder {
+    .general-input::placeholder {
         color: #888;
     }
 
-    .task-name-input:focus {
+    .general-input:focus {
         border: 1px solid lightgray;
         outline: none;
     }
