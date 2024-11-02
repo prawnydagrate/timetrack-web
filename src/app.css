@@ -1,3 +1,9 @@
+html,
+body {
+    width: 99%;
+    height: 99.4%;
+}
+
 body {
     background-color: #222;
     color: whitesmoke;
@@ -14,4 +20,9 @@ body {
         "Helvetica Neue",
         sans-serif;
 
+}
+
+#app {
+    height: 98.9vh;
+    width: 100%;
 }
